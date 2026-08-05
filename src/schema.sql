@@ -19,3 +19,12 @@ CREATE TABLE IF NOT EXISTS jobs (
 
 -- Speeds up "top skills this week" style queries in the AI insights step (Days 9-10)
 CREATE INDEX IF NOT EXISTS idx_jobs_posted_at ON jobs (posted_at);
+
+-- Day 9-10: stores each AI-generated market summary, so the dashboard can show
+-- the latest one and you keep a history of past insights over time.
+CREATE TABLE IF NOT EXISTS insights (
+    id              SERIAL PRIMARY KEY,
+    summary         TEXT NOT NULL,       -- the natural-language insight from Gemini
+    stats           JSONB,               -- the raw aggregated numbers the prompt was built from
+    generated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);

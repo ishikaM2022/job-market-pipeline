@@ -16,6 +16,7 @@ from load import (
     transform,
     upsert_jobs,
 )
+from insights import gather_stats, build_prompt, generate_insight, save_insight
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
@@ -61,6 +62,18 @@ def run():
     except Exception as e:
         logger.error(f"Load failed: {e}")
         sys.exit(1)
+
+    logger.info("Generating AI insight...")
+    try:
+        stats = gather_stats(engine)
+        prompt = build_prompt(stats)
+        summary = generate_insight(prompt)
+        save_insight(engine, summary, stats)
+        logger.info(f"Insight generated: {summary[:100]}...")
+    except Exception as e:
+        # Don't fail the whole pipeline over an insights hiccup - the data load
+        # already succeeded and is the more important part to protect.
+        logger.warning(f"Insight generation failed (data load still succeeded): {e}")
 
     logger.info("Pipeline completed successfully.")
 
