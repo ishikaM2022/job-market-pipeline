@@ -69,12 +69,45 @@ def extract_skills(description_text):
     return found
 
 
+# Known variants that should collapse into one canonical location name.
+# Add to this as you spot more duplicates in the dashboard's Top Locations chart.
+LOCATION_ALIASES = {
+    "münchen": "Munich",
+    "munich": "Munich",
+    "remote": "Remote",
+}
+
+
+def normalize_location(raw_location):
+    """Clean up location text so identical places don't fragment into separate
+    chart bars due to casing/spelling differences (e.g. 'München' vs 'Munich',
+    'remote' vs 'Remote')."""
+    if not raw_location:
+        return raw_location
+    cleaned = raw_location.strip()
+    key = cleaned.lower()
+    if key in LOCATION_ALIASES:
+        return LOCATION_ALIASES[key]
+    return cleaned
+
+
+def determine_remote(job, normalized_location):
+    """Arbeitnow's own `remote` boolean is unreliable - some postings with
+    location='remote' still have remote=false. Treat it as remote if EITHER
+    the API's field says so, OR the location text itself says 'remote'."""
+    api_flag = bool(job.get("remote", False))
+    location_says_remote = (normalized_location or "").lower() == "remote"
+    return api_flag or location_says_remote
+
+
 def transform(raw_jobs):
     """Turn raw Arbeitnow job dicts into rows ready for the jobs table."""
     rows = []
     for job in raw_jobs:
         plain_description = strip_html(job.get("description"))
         skills = extract_skills(plain_description)
+        location = normalize_location(job.get("location"))
+        is_remote = determine_remote(job, location)
 
         posted_at = None
         if job.get("created_at"):
@@ -87,8 +120,8 @@ def transform(raw_jobs):
             "slug": job.get("slug"),
             "title": job.get("title"),
             "company": job.get("company_name"),
-            "location": job.get("location"),
-            "is_remote": job.get("remote", False),
+            "location": location,
+            "is_remote": is_remote,
             "tags": job.get("tags", []),
             "skills": skills,
             "description": plain_description,
@@ -140,7 +173,7 @@ if __name__ == "__main__":
     if not db_url:
         raise RuntimeError("NEON_DATABASE_URL not found in .env")
 
-    engine = create_engine(db_url)
+    engine = create_engine(db_url, pool_pre_ping=True, pool_recycle=300)
 
     latest_file = get_latest_raw_file()
     print(f"Loading raw data from {latest_file}")

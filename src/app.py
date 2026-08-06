@@ -43,7 +43,11 @@ def get_engine():
     if not db_url:
         st.error("NEON_DATABASE_URL not found. Set it in .env (local) or Secrets (cloud).")
         st.stop()
-    return create_engine(db_url)
+    # pool_pre_ping tests each connection before use and transparently reconnects
+    # if it's dead - necessary because Neon's free tier suspends its compute after
+    # inactivity, which silently closes idle connections SQLAlchemy would otherwise
+    # try to reuse and fail on.
+    return create_engine(db_url, pool_pre_ping=True, pool_recycle=300)
 
 
 @st.cache_data(ttl=600)  # refresh every 10 minutes, avoids hammering the DB on every interaction

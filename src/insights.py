@@ -26,7 +26,7 @@ def get_engine():
     db_url = os.getenv("NEON_DATABASE_URL")
     if not db_url:
         raise RuntimeError("NEON_DATABASE_URL not found in .env")
-    return create_engine(db_url)
+    return create_engine(db_url, pool_pre_ping=True, pool_recycle=300)
 
 
 def gather_stats(engine):

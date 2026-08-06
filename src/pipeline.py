@@ -56,7 +56,7 @@ def run():
     logger.info(f"Transformed {len(rows)} rows ({with_skills} with matched skills).")
 
     try:
-        engine = create_engine(db_url)
+        engine = create_engine(db_url, pool_pre_ping=True, pool_recycle=300)
         ensure_schema(engine)
         upsert_jobs(engine, rows)
     except Exception as e:
