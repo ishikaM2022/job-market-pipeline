@@ -1,6 +1,7 @@
 # Secrets - NEVER commit these
 .env
 *.env
+.streamlit/secrets.toml
 venv/
 __pycache__/
 *.pyc
