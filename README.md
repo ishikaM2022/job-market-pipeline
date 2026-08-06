@@ -42,7 +42,7 @@ triggered daily by .github/workflows/run_pipeline.yml
 
 ## Architecture
 
-![Architecture-Diagram](diagrams/Architecture diagrams job-market-pipeline.png)
+![Architecture-Diagram](diagrams/architecture-diagrams-job-market-pipeline.png)
 
 ## Stack
 
