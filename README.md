@@ -16,7 +16,7 @@ everything on a public dashboard. Runs automatically every day.
 - Displays metrics, charts, and the latest AI insight on a Streamlit dashboard
 - Runs unattended every day via GitHub Actions cron - no manual triggering needed
 
-## Architecture
+## The Flow
 
 ```
 Arbeitnow API
@@ -39,6 +39,10 @@ insights.py  →  aggregate stats → Gemini → insights table
 pipeline.py ties extract → load → insights into one run,
 triggered daily by .github/workflows/run_pipeline.yml
 ```
+
+## Architecture
+
+![Architecture-Diagram](diagrams/Architecture diagrams job-market-pipeline.png)
 
 ## Stack
 
