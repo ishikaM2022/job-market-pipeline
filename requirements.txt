@@ -1,7 +1,7 @@
 requests
 python-dotenv
-psycopg2-binary
-sqlalchemy
 google-genai
-streamlit
-pandas
+sqlalchemy~=2.1.1
+psycopg[binary]~=3.2.0
+streamlit~=1.40.0
+pandas~=2.2.0
